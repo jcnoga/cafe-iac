@@ -520,15 +520,14 @@
     // ======================================================
     // CONFIGURAÇÃO DO FIREBASE (SUBSTITUA PELOS SEUS DADOS)
     // ======================================================
-const firebaseConfig = {
-  apiKey: "AIzaSyAyl9gtX41SlfQADmUAXCYRnWIQyFUeX6s",
-  authDomain: "cafe-iac.firebaseapp.com",
-  projectId: "cafe-iac",
-  storageBucket: "cafe-iac.firebasestorage.app",
-  messagingSenderId: "754186773334",
-  appId: "1:754186773334:web:2f49f6c17c326073c86cf7"
-};
-
+    const firebaseConfig = {
+        apiKey: "SUA_API_KEY_AQUI",
+        authDomain: "SEU_PROJETO.firebaseapp.com",
+        projectId: "SEU_PROJECT_ID",
+        storageBucket: "SEU_PROJETO.appspot.com",
+        messagingSenderId: "SEU_SENDER_ID",
+        appId: "SEU_APP_ID"
+    };
 
     // Inicializa Firebase apenas se a config estiver preenchida (evita crash se usuário copiar sem configurar)
     let db, auth;
@@ -541,6 +540,11 @@ const firebaseConfig = {
             console.warn("Firebase não configurado. Adicione suas chaves no código.");
         }
     } catch(e) { console.error("Erro Firebase:", e); }
+
+    // --- CONSTANTES PARA VALIDAÇÃO DE SEGURANÇA (Refatorado) ---
+    const CONST_ADICAO = 13;
+    const CONST_MULTIPLICACAO = 9;
+    const CONST_BASE = 1954;
 
     // --- VARIÁVEIS GLOBAIS ---
     let currentUser = null;
@@ -623,11 +627,15 @@ const firebaseConfig = {
 
         auth.createUserWithEmailAndPassword(email, pass)
             .then((cred) => {
+                // Cálculo para 30 dias de autorização inicial
+                const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
+                const expirationDate = Date.now() + thirtyDaysInMs;
+
                 // Salvar dados da empresa no Firestore
                 return db.collection('users').doc(cred.user.uid).set({
                     empresa: empresa,
                     email: email,
-                    licenseExpiration: 0 // Começa sem licença
+                    licenseExpiration: expirationDate // Começa com 30 dias
                 });
             })
             .then(() => { location.reload(); })
@@ -721,8 +729,8 @@ const firebaseConfig = {
         const contraSenhaInput = parseInt(parts[0]);
         const diasInput = parseInt(parts[1]);
 
-        // Cálculo: (random + 13) * 9 + 1954
-        const calcEsperado = (generatedRandomCode + 13) * 9 + 1954;
+        // Cálculo Refatorado usando Constantes: (random + 13) * 9 + 1954
+        const calcEsperado = (generatedRandomCode + CONST_ADICAO) * CONST_MULTIPLICACAO + CONST_BASE;
 
         if(contraSenhaInput === calcEsperado) {
             adicionarDiasLicenca(diasInput);
