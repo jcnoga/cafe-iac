@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recomendação de Adubação - Café (Boletim 100)</title>
+    
+    <!-- Bibliotecas para geração de PDF (Mantidas conforme solicitação de preservação de lógica) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Bibliotecas para DOCX (Real) -->
+    <script src="https://unpkg.com/html-docx-js/dist/html-docx.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #2c5e2e; /* Verde Café */
+            --secondary-color: #4e342e; /* Marrom Café */
+            --accent-color: #8d6e63;
+            --light-bg: #f1f8e9;
+            --text-color: #333;
+            --danger-color: #d32f2f;
+            --edit-color: #1976d2;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e8ece6;
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        /* HEADER E BARRA DE FERRAMENTAS */
+        header {
+            border-bottom: 3px solid var(--primary-color);
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .header-toolbar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .header-title {
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin: 0 0 5px 0;
+        }
+
+        h2 {
+            color: var(--secondary-color);
+            font-size: 1.2rem;
+            margin-top: 20px;
+            border-left: 5px solid var(--primary-color);
+            padding-left: 10px;
+        }
+
+        /* Botões Superiores */
+        .toolbar-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-config {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        .btn-config:hover { background-color: #3e2723; }
+
+        .btn-test {
+            background-color: #ff9800;
+            color: white;
+        }
+        .btn-test:hover { background-color: #f57c00; }
+
+
+        .form-section {
+            background-color: var(--light-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        textarea { resize: vertical; }
+
+        /* AÇÕES PRINCIPAIS */
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        button.action-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            font-size: 1.1rem;
+        }
+
+        .btn-calc { background-color: var(--primary-color); font-size: 1.1rem; width: 100%; justify-content: center; margin-bottom: 20px; flex-direction: row;}
+        .btn-docx { background-color: #1976d2; min-width: 300px; }
+        
+        button.action-btn:hover { opacity: 0.9; transform: translateY(-2px); }
+
+        /* TABELA DE REGIÕES */
+        .region-list-container {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .region-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .region-table th {
+            background-color: #f0f0f0;
+            padding: 10px;
+            text-align: left;
+            border-bottom: 2px solid #ccc;
+            font-weight: bold;
+            color: #444;
+        }
+
+        .region-table td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+
+        .region-table tr:last-child td { border-bottom: none; }
+        .region-table tr:hover { background-color: #fafafa; }
+
+        .tag-factor {
+            display: inline-block;
+            background: #e0e0e0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-right: 4px;
+            color: #333;
+        }
+
+        .btn-icon {
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: white;
+            margin-left: 5px;
+        }
+
+        .btn-edit { background-color: var(--edit-color); }
+        .btn-delete { background-color: var(--danger-color); }
+        .btn-edit:hover, .btn-delete:hover { opacity: 0.8; }
+        .btn-disabled { background-color: #ccc; cursor: not-allowed; }
+
+        /* Área do Relatório */
+        #report-output {
+            display: none;
+            border: 1px solid #ddd;
+            padding: 40px;
+            margin-top: 30px;
+            background: white;
+        }
+
+        .report-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 10px;
+        }
+
+        .report-section {
+            margin-bottom: 25px;
+        }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        .report-table th, .report-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .report-table th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .alert-box {
+            background-color: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            margin: 10px 0;
+            font-size: 0.9rem;
+        }
+
+        .recommendation-text {
+            font-size: 1rem;
+            text-align: justify;
+            margin-bottom: 15px;
+            white-space: pre-wrap; /* Preservar quebras de linha */
+        }
+
+        /* Rodapé de Apoio */
+        .support-section {
+            background-color: #263238;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .pix-key {
+            background: #fff;
+            color: #333;
+            padding: 10px;
+            font-family: monospace;
+            border-radius: 4px;
+            display: inline-block;
+            margin: 10px 0;
+            border: 2px dashed var(--primary-color);
+            cursor: pointer;
+        }
+
+        .pix-options {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .pix-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        footer {
+            margin-top: 30px;
+            padding-top: 10px;
+            border-top: 1px solid #ccc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+        }
+
+        a.inst-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 2% auto;
+            padding: 25px;
+            border: 1px solid #888;
+            width: 85%;
+            max-width: 900px;
+            border-radius: 8px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover { color: black; }
+
+        .modal-header { border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 20px; }
+        
+        .tab-bar { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #ccc; }
+        .tab-btn { background: none; border: none; padding: 10px; cursor: pointer; border-bottom: 3px solid transparent; }
+        .tab-btn.active { border-bottom-color: var(--primary-color); font-weight: bold; }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Estilos específicos para impressão/PDF */
+        @media print {
+            body { background-color: white; }
+            .container { box-shadow: none; width: 100%; max-width: 100%; }
+            .no-print { display: none !important; }
+            #report-output { display: block !important; border: none; padding: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <!-- Barra de Ferramentas -->
+        <div class="header-toolbar no-print">
+            <button type="button" class="toolbar-btn btn-config" onclick="abrirModalRegioes()">
+                <span>⚙️</span> Configurar Regiões
+            </button>
+            <button type="button" class="toolbar-btn btn-test" onclick="preencherDadosTeste()">
+                <span>📋</span> Dados de Teste
+            </button>
+        </div>
+
+        <div class="header-title">
+            <h1>Recomendação Técnica - Café Arábica</h1>
+            <p>Baseado no Boletim Técnico 100 (Edição 2022)</p>
+        </div>
+    </header>
+
+    <div class="no-print">
+        <form id="calcForm">
+            <!-- Região e Identificação -->
+            <div class="form-section">
+                <h2>1. Configuração e Identificação</h2>
+                <div class="input-group">
+                    <div>
+                        <label for="regiao_select">Selecione a Região / Ajuste:</label>
+                        <select id="regiao_select" onchange="carregarRegiaoSelecionada()">
+                            <!-- Opções carregadas via JS -->
+                        </select>
+                    </div>
+                    <div>
+                        <label>Produtor / Propriedade:</label>
+                        <input type="text" id="produtor" placeholder="Nome do Produtor">
+                    </div>
+                    <div>
+                        <label>Produtividade Esperada (sc/ha):</label>
+                        <input type="number" id="produtividade" placeholder="Ex: 45">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div>
+                        <label>Espaçamento (m):</label>
+                        <div style="display: flex; gap: 5px;">
+                            <input type="number" id="esp_rua" placeholder="Rua (Ex: 3.5)">
+                            <input type="number" id="esp_planta" placeholder="Planta (Ex: 0.7)">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Análise de Solo -->
+            <div class="form-section">
+                <h2>2. Análise de Solo (Camada 0-20 cm)</h2>
+                <div class="input-group">
+                    <div>
+                        <label>Textura do Solo:</label>
+                        <select id="textura">
+                            <option value="arenosa">Arenosa</option>
+                            <option value="media" selected>Média</option>
+                            <option value="argilosa">Argilosa</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>V% (Saturação Atual):</label>
+                        <input type="number" id="v_atual" step="0.1">
+                    </div>
+                    <div>
+                        <label>CTC (mmolc/dm³):</label>
+                        <input type="number" id="ctc" step="0.1" placeholder="Ex: 80">
+                    </div>
+                    <div>
+                        <label>PRNT do Calcário (%):</label>
+                        <input type="number" id="prnt" value="80">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div>
+                        <label>P-resina (mg/dm³):</label>
+                        <input type="number" id="p_resina" step="0.1">
+                    </div>
+                    <div>
+                        <label>K (mmolc/dm³):</label>
+                        <input type="number" id="k_solo" step="0.01">
+                    </div>
+                    <div>
+                        <label>Ca (mmolc/dm³):</label>
+                        <input type="number" id="ca_solo" step="0.1">
+                    </div>
+                    <div>
+                        <label>Mg (mmolc/dm³):</label>
+                        <input type="number" id="mg_solo" step="0.1">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Micronutrientes -->
+            <div class="form-section">
+                <h2>3. Micronutrientes (Opcional)</h2>
+                <div class="input-group">
+                    <div>
+                        <label>Boro (mg/dm³):</label>
+                        <input type="number" id="b_solo" step="0.01">
+                    </div>
+                    <div>
+                        <label>Zinco (mg/dm³):</label>
+                        <input type="number" id="zn_solo" step="0.1">
+                    </div>
+                    <div>
+                        <label>Cobre (mg/dm³):</label>
+                        <input type="number" id="cu_solo" step="0.1">
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" class="action-btn btn-calc" onclick="gerarRecomendacao()">Gerar Recomendação Agronômica</button>
+        </form>
+    </div>
+
+    <!-- ÁREA DO RELATÓRIO (OUTPUT) -->
+    <div id="report-output">
+        <div class="report-header">
+            <h2>Recomendação Técnica de Adubação e Calagem</h2>
+            <p><strong>Cultura:</strong> Café em Produção (> 2,5 anos) | <strong>Data:</strong> <span id="data-atual"></span></p>
+            <p><strong>Produtor:</strong> <span id="rep-produtor"></span> | <strong>Produtividade Alvo:</strong> <span id="rep-meta"></span> sc/ha</p>
+            <p id="aviso-teste" style="color: red; display: none; font-size: 0.8rem;">* VALORES GERADOS A PARTIR DE DADOS DE TESTE</p>
+        </div>
+
+        <!-- 1. Calagem e Correção -->
+        <div class="report-section">
+            <h3>1. Correção do Solo (Calagem e Gessagem)</h3>
+            <div class="recommendation-text" id="text-calagem"></div>
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Prática</th>
+                        <th>Dose Recomendada</th>
+                        <th>Observação</th>
+                    </tr>
+                </thead>
+                <tbody id="table-calagem-body"></tbody>
+            </table>
+        </div>
+
+        <!-- 2. Adubação Orgânica -->
+        <div class="report-section">
+            <h3>2. Adubação Orgânica e Verde</h3>
+            <div class="recommendation-text" id="text-organica"></div>
+        </div>
+
+        <!-- 3. Adubação Mineral de Produção (Parcelamento) -->
+        <div class="report-section">
+            <h3>3. Adubação Mineral de Produção (Parcelamento)</h3>
+            <div class="recommendation-text" id="text-mineral">
+                As doses abaixo foram calculadas com base na produtividade esperada e na análise de solo.
+            </div>
+            
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Época</th>
+                        <th>Nutrientes (kg/ha)</th>
+                        <th>Sugestão de Produto Comercial (kg/ha)</th>
+                    </tr>
+                </thead>
+                <tbody id="table-adubacao-body"></tbody>
+            </table>
+            <div class="alert-box">
+                <strong>Nota:</strong> As sugestões de produtos comerciais são baseadas nas fontes mais comuns (Ureia, Superfosfato Simples, Cloreto de Potássio).
+            </div>
+        </div>
+
+        <!-- 4. Micronutrientes (Solo) -->
+        <div class="report-section" id="sec-micro-solo">
+            <h3>4. Correção de Micronutrientes via Solo</h3>
+            <div class="recommendation-text" id="text-micro-solo"></div>
+        </div>
+
+        <!-- 5. Adubação Foliar -->
+        <div class="report-section">
+            <h3>5. Programa de Adubação Foliar</h3>
+            <div class="recommendation-text" id="text-foliar">
+                As pulverizações devem ser realizadas preferencialmente nos períodos mais frescos do dia.
+            </div>
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Fase Fenológica</th>
+                        <th>Nutrientes / Produtos Sugeridos</th>
+                        <th>Concentração (g/L)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Pré e Pós-Florada</strong><br>(Set - Nov)</td>
+                        <td>Boro (Ácido Bórico)<br>Zinco (Sulfato de Zinco)<br>Cálcio + Boro</td>
+                        <td>1,0 - 2,0 g/L<br>1,0 - 2,0 g/L<br>Conforme bula</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Chumbinho / Expansão</strong><br>(Dez - Fev)</td>
+                        <td>Cobre (Fungicida cúprico/Nutricional)<br>Magnésio (Sulfato de Mg)<br>Manganês (se necessário)</td>
+                        <td>2,0 - 4,0 g/L<br>5,0 - 10,0 g/L<br>1,0 - 2,0 g/L</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Maturação</strong><br>(Mar - Abr)</td>
+                        <td>Potássio (Nitrato de K - opcional)<br>Monitorar ferrugem/pragas</td>
+                        <td>5,0 - 10,0 g/L</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Rodapé do Relatório Técnico ATUALIZADO -->
+        <div style="margin-top: 50px; border-top: 1px solid #ccc; padding-top: 20px;">
+            <p>Este laudo é uma recomendação técnica baseada no Boletim Técnico 100 do IAC. Consulte sempre um Engenheiro Agrônomo para ajustes conforme as condições locais.</p>
+            
+            <div style="margin-top: 60px; text-align: center;">
+                __________________________________________<br>
+                <strong>Agrônomo responsável</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- Área de Ações e Apoio (Não sai no PDF) -->
+    <div class="no-print">
+        <div class="actions" id="actions-div" style="display:none;">
+            <!-- Opção única de download sem o texto adicional -->
+            <button class="action-btn btn-docx" onclick="baixarDOCX()">
+                📝 Baixar Laudo Editável (.docx)
+            </button>
+        </div>
+
+        <div class="support-section">
+            <h3>Apoie este Projeto</h3>
+            <p>Ajude na manutenção e evolução deste aplicativo gratuito.</p>
+            <p>Chave PIX (Copia e Cola):</p>
+            <div class="pix-key" onclick="copiarPix()">b4648948-d0a8-4402-81f4-8a4047fcf4e5</div>
+            <p><small>(Clique na chave para copiar)</small></p>
+            
+            <div class="pix-options">
+                <button class="pix-btn" onclick="alert('Obrigado! Use a chave acima para doar R$ 7,00')">R$ 7,00</button>
+                <button class="pix-btn" onclick="alert('Obrigado! Use a chave acima para doar R$ 13,00')">R$ 13,00</button>
+                <button class="pix-btn" onclick="alert('Obrigado! Use a chave acima para doar R$ 17,00')">R$ 17,00</button>
+                <button class="pix-btn" onclick="alert('Obrigado! Use a chave acima para doar qualquer valor')">Outro valor</button>
+            </div>
+        </div>
+
+        <footer>
+            <span>© 2025 Aplicativo de Recomendação Agronômica</span>
+            <a href="http://www.websitelog.com.br" class="inst-link" target="_blank">www.websitelog.com.br</a>
+        </footer>
+    </div>
+</div>
+
+<!-- MODAL DE CONFIGURAÇÃO DE REGIÕES -->
+<div id="modal-regioes" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="fecharModalRegioes()">&times;</span>
+        <div class="modal-header">
+            <h2>⚙️ Configurar Regiões e Ajustes</h2>
+            <p>Cadastre regiões e ajuste fatores de recomendação e textos padrão.</p>
+        </div>
+        
+        <!-- Formulário de Nova Região -->
+        <div class="input-group" style="background: #f9f9f9; padding: 15px; border-radius: 6px; border: 1px solid #eee;">
+            <div>
+                <label>Nome da Nova Região:</label>
+                <input type="text" id="novo_nome_regiao" placeholder="Ex: Sul de Minas - Alta Tecnologia">
+            </div>
+            <div style="display:flex; align-items:flex-end;">
+                <button type="button" class="action-btn btn-calc" style="margin:0; padding:8px 15px;" onclick="criarNovaRegiao()">+ Criar Região</button>
+            </div>
+        </div>
+
+        <!-- LISTA DE REGIÕES (GRID/TABELA) -->
+        <div id="lista-regioes-container" class="region-list-container">
+            <table class="region-table">
+                <thead>
+                    <tr>
+                        <th>Nome da Região</th>
+                        <th>Fatores de Ajuste</th>
+                        <th style="text-align: right;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="lista-regioes-body">
+                    <!-- Preenchido via JS -->
+                </tbody>
+            </table>
+        </div>
+
+        <hr style="margin: 30px 0;">
+
+        <!-- EDITOR (Inicialmente oculto) -->
+        <div id="editor-regiao" style="display:none; border: 1px solid #ccc; padding: 20px; border-radius: 8px; background: #fff;">
+            <h3 style="margin-top:0;">Editando: <span id="editando-nome" style="color:var(--primary-color)"></span></h3>
+            
+            <div class="tab-bar">
+                <button class="tab-btn active" onclick="mudarAba('fatores')">Fatores de Ajuste</button>
+                <button class="tab-btn" onclick="mudarAba('textos')">Textos Personalizados</button>
+            </div>
+
+            <!-- ABA FATORES -->
+            <div id="aba-fatores" class="tab-content active">
+                <p>Defina multiplicadores para as doses (1.0 = Dose Original, 1.1 = +10%, 0.9 = -10%)</p>
+                <div class="input-group">
+                    <div>
+                        <label>Fator N (Nitrogênio):</label>
+                        <input type="number" id="fator_n" step="0.05" value="1.0">
+                    </div>
+                    <div>
+                        <label>Fator P (Fósforo):</label>
+                        <input type="number" id="fator_p" step="0.05" value="1.0">
+                    </div>
+                    <div>
+                        <label>Fator K (Potássio):</label>
+                        <input type="number" id="fator_k" step="0.05" value="1.0">
+                    </div>
+                </div>
+            </div>
+
+            <!-- ABA TEXTOS -->
+            <div id="aba-textos" class="tab-content">
+                <p>Personalize os textos que aparecerão no relatório para esta região.</p>
+                
+                <label>Texto: Calagem</label>
+                <textarea id="txt_calagem" rows="2"></textarea>
+                
+                <label style="margin-top:10px">Texto: Gessagem</label>
+                <textarea id="txt_gessagem" rows="2"></textarea>
+                
+                <label style="margin-top:10px">Texto: Adubação Orgânica/Outras Práticas</label>
+                <textarea id="txt_organica" rows="3"></textarea>
+
+                <label style="margin-top:10px">Texto: 1ª Adubação de Cobertura</label>
+                <textarea id="txt_cob1" rows="2"></textarea>
+
+                <label style="margin-top:10px">Texto: Demais Coberturas</label>
+                <textarea id="txt_cob_demais" rows="2"></textarea>
+
+                <label style="margin-top:10px">Texto: Adubação Foliar</label>
+                <textarea id="txt_foliar" rows="2"></textarea>
+            </div>
+
+            <div style="margin-top:20px; text-align:right;">
+                <button class="action-btn btn-calc" onclick="salvarRegiaoAtual()">💾 Salvar Alterações na Região</button>
+                <button class="action-btn btn-email" style="display:inline-flex; margin-left: 10px; background-color: #757575;" onclick="cancelarEdicao()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- ESTADO GLOBAL ---
+    let regioes = {
+        "padrao": {
+            id: "padrao",
+            nome: "Padrão (Boletim 100)",
+            fatores: { n: 1.0, p: 1.0, k: 1.0 },
+            textos: {
+                calagem: "Aplicar a lanço em área total e incorporar se possível. A correção da acidez é fundamental para a disponibilidade de nutrientes.",
+                gessagem: "O gesso agrícola fornece Cálcio e Enxofre e melhora o ambiente radicular em profundidade.",
+                organica: "Recomenda-se a utilização de adubação orgânica para melhoria da estrutura do solo. Espécies como Crotalária e Mucuna são indicadas para as entrelinhas.",
+                cob1: "Realizar na fase de recuperação pós-colheita para preparar a planta para a próxima florada.",
+                cob_demais: "Realizar para suporte ao crescimento vegetativo e enchimento de grãos.",
+                foliar: "As pulverizações devem ser realizadas preferencialmente nos períodos mais frescos do dia, observando as fases fenológicas."
+            }
+        }
+    };
+    
+    let regiaoSelecionada = "padrao";
+    let regiaoEmEdicao = null;
+    let dadosRelatorio = {};
+
+    // --- INICIALIZAÇÃO ---
+    window.onload = function() {
+        carregarLocalStorage();
+        atualizarSelectRegioes();
+    };
+
+    function carregarLocalStorage() {
+        const salvo = localStorage.getItem('appCafeRegioes');
+        if (salvo) {
+            const regioesSalvas = JSON.parse(salvo);
+            regioes = { ...regioes, ...regioesSalvas };
+            regioes["padrao"].fatores = { n: 1.0, p: 1.0, k: 1.0 };
+        }
+    }
+
+    function salvarLocalStorage() {
+        localStorage.setItem('appCafeRegioes', JSON.stringify(regioes));
+    }
+
+    // --- GERENCIAMENTO DE REGIÕES (MODAL) ---
+    function abrirModalRegioes() {
+        document.getElementById('modal-regioes').style.display = "block";
+        document.getElementById('editor-regiao').style.display = "none"; 
+        renderizarListaRegioes();
+    }
+
+    function fecharModalRegioes() {
+        document.getElementById('modal-regioes').style.display = "none";
+        atualizarSelectRegioes();
+    }
+
+    function renderizarListaRegioes() {
+        const tbody = document.getElementById('lista-regioes-body');
+        tbody.innerHTML = "";
+
+        for (let id in regioes) {
+            const r = regioes[id];
+            const tr = document.createElement('tr');
+            
+            const tdNome = document.createElement('td');
+            tdNome.innerHTML = `<strong>${r.nome}</strong>`;
+            if(id === "padrao") tdNome.innerHTML += " <small style='color:green'>(Sistema)</small>";
+            tr.appendChild(tdNome);
+
+            const tdFatores = document.createElement('td');
+            tdFatores.innerHTML = `
+                <span class="tag-factor">N: ${r.fatores.n.toFixed(2)}x</span>
+                <span class="tag-factor">P: ${r.fatores.p.toFixed(2)}x</span>
+                <span class="tag-factor">K: ${r.fatores.k.toFixed(2)}x</span>
+            `;
+            tr.appendChild(tdFatores);
+
+            const tdAcoes = document.createElement('td');
+            tdAcoes.style.textAlign = "right";
+
+            const btnEdit = document.createElement('button');
+            btnEdit.className = "btn-icon btn-edit";
+            btnEdit.innerHTML = "✏️ Editar";
+            btnEdit.onclick = () => iniciarEdicao(id);
+            tdAcoes.appendChild(btnEdit);
+
+            const btnDel = document.createElement('button');
+            btnDel.className = "btn-icon btn-delete";
+            btnDel.innerHTML = "🗑️";
+            if (id === "padrao") {
+                btnDel.classList.add('btn-disabled');
+                btnDel.disabled = true;
+                btnDel.title = "A região padrão não pode ser excluída";
+            } else {
+                btnDel.onclick = () => excluirRegiao(id);
+            }
+            tdAcoes.appendChild(btnDel);
+
+            tr.appendChild(tdAcoes);
+            tbody.appendChild(tr);
+        }
+    }
+
+    function criarNovaRegiao() {
+        const nome = document.getElementById('novo_nome_regiao').value;
+        if (!nome) return alert("Digite um nome para a região.");
+        
+        const id = "reg_" + new Date().getTime();
+        regioes[id] = JSON.parse(JSON.stringify(regioes["padrao"]));
+        regioes[id].id = id;
+        regioes[id].nome = nome;
+        
+        document.getElementById('novo_nome_regiao').value = "";
+        salvarLocalStorage();
+        renderizarListaRegioes();
+        iniciarEdicao(id);
+        alert("Região criada! Ajuste os fatores e textos abaixo.");
+    }
+
+    function iniciarEdicao(id) {
+        regiaoEmEdicao = id;
+        const r = regioes[id];
+        
+        document.getElementById('editor-regiao').style.display = "block";
+        document.getElementById('editando-nome').innerText = r.nome;
+
+        document.getElementById('fator_n').value = r.fatores.n;
+        document.getElementById('fator_p').value = r.fatores.p;
+        document.getElementById('fator_k').value = r.fatores.k;
+
+        document.getElementById('txt_calagem').value = r.textos.calagem;
+        document.getElementById('txt_gessagem').value = r.textos.gessagem;
+        document.getElementById('txt_organica').value = r.textos.organica;
+        document.getElementById('txt_cob1').value = r.textos.cob1;
+        document.getElementById('txt_cob_demais').value = r.textos.cob_demais;
+        document.getElementById('txt_foliar').value = r.textos.foliar;
+
+        document.getElementById('editor-regiao').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function cancelarEdicao() {
+        document.getElementById('editor-regiao').style.display = "none";
+        regiaoEmEdicao = null;
+    }
+
+    function salvarRegiaoAtual() {
+        if (!regiaoEmEdicao) return;
+        
+        const id = regiaoEmEdicao;
+
+        if (id === "padrao") {
+            const n = parseFloat(document.getElementById('fator_n').value);
+            const p = parseFloat(document.getElementById('fator_p').value);
+            const k = parseFloat(document.getElementById('fator_k').value);
+            if (n !== 1 || p !== 1 || k !== 1) {
+                alert("A região Padrão deve manter os fatores iguais a 1.0. Crie uma nova região para alterar as doses.");
+                return;
+            }
+        }
+
+        regioes[id].fatores.n = parseFloat(document.getElementById('fator_n').value);
+        regioes[id].fatores.p = parseFloat(document.getElementById('fator_p').value);
+        regioes[id].fatores.k = parseFloat(document.getElementById('fator_k').value);
+
+        regioes[id].textos.calagem = document.getElementById('txt_calagem').value;
+        regioes[id].textos.gessagem = document.getElementById('txt_gessagem').value;
+        regioes[id].textos.organica = document.getElementById('txt_organica').value;
+        regioes[id].textos.cob1 = document.getElementById('txt_cob1').value;
+        regioes[id].textos.cob_demais = document.getElementById('txt_cob_demais').value;
+        regioes[id].textos.foliar = document.getElementById('txt_foliar').value;
+
+        salvarLocalStorage();
+        renderizarListaRegioes();
+        document.getElementById('editor-regiao').style.display = "none";
+        alert("Alterações salvas!");
+    }
+
+    function excluirRegiao(id) {
+        if (!confirm(`Tem certeza que deseja excluir a região "${regioes[id].nome}"?`)) return;
+        
+        delete regioes[id];
+        salvarLocalStorage();
+        
+        if (regiaoSelecionada === id) {
+            regiaoSelecionada = "padrao";
+            document.getElementById('regiao_select').value = "padrao";
+        }
+
+        if (regiaoEmEdicao === id) {
+            cancelarEdicao();
+        }
+
+        renderizarListaRegioes();
+        atualizarSelectRegioes();
+    }
+
+    function atualizarSelectRegioes() {
+        const select = document.getElementById('regiao_select');
+        const valorAtual = select.value || regiaoSelecionada;
+        select.innerHTML = "";
+        
+        for (let key in regioes) {
+            let opt = document.createElement('option');
+            opt.value = key;
+            opt.innerText = regioes[key].nome;
+            if (key === valorAtual) opt.selected = true;
+            select.appendChild(opt);
+        }
+        regiaoSelecionada = select.value;
+    }
+
+    function carregarRegiaoSelecionada() {
+        regiaoSelecionada = document.getElementById('regiao_select').value;
+    }
+
+    function mudarAba(aba) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        
+        document.getElementById('aba-' + aba).classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    // --- FUNÇÕES DE PREENCHIMENTO E CÁLCULO ---
+
+    function preencherDadosTeste() {
+        document.getElementById('produtor').value = "Fazenda Modelo (Teste)";
+        document.getElementById('produtividade').value = 45;
+        document.getElementById('esp_rua').value = 3.5;
+        document.getElementById('esp_planta').value = 0.7;
+        
+        document.getElementById('textura').value = "media";
+        document.getElementById('v_atual').value = 45;
+        document.getElementById('ctc').value = 90;
+        document.getElementById('prnt').value = 85;
+        
+        document.getElementById('p_resina').value = 15;
+        document.getElementById('k_solo').value = 1.4;
+        document.getElementById('ca_solo').value = 25;
+        document.getElementById('mg_solo').value = 6;
+        
+        document.getElementById('b_solo').value = 0.15;
+        document.getElementById('zn_solo').value = 0.4;
+        document.getElementById('cu_solo').value = 0.5;
+
+        document.getElementById('aviso-teste').style.display = 'block';
+        alert("Dados de teste preenchidos!");
+    }
+
+    function copiarPix() {
+        const key = "b4648948-d0a8-4402-81f4-8a4047fcf4e5";
+        navigator.clipboard.writeText(key).then(() => {
+            alert("Chave PIX copiada para a área de transferência!");
+        });
+    }
+
+    function gerarRecomendacao() {
+        // Obter configuração da região ativa
+        const config = regioes[regiaoSelecionada];
+        const fatores = config.fatores;
+        const textos = config.textos;
+
+        // 1. Coletar Inputs
+        const produtor = document.getElementById('produtor').value || "Não informado";
+        const meta = parseFloat(document.getElementById('produtividade').value) || 0;
+        const textura = document.getElementById('textura').value;
+        const vAtual = parseFloat(document.getElementById('v_atual').value) || 0;
+        const ctc = parseFloat(document.getElementById('ctc').value) || 0;
+        const prnt = parseFloat(document.getElementById('prnt').value) || 0;
+        const pResina = parseFloat(document.getElementById('p_resina').value) || 0;
+        const kSolo = parseFloat(document.getElementById('k_solo').value) || 0;
+        
+        // Micronutrientes
+        const bSolo = parseFloat(document.getElementById('b_solo').value);
+        const znSolo = parseFloat(document.getElementById('zn_solo').value);
+        const cuSolo = parseFloat(document.getElementById('cu_solo').value);
+
+        if (meta === 0) {
+            alert("Por favor, informe a produtividade esperada.");
+            return;
+        }
+
+        const dataHoje = new Date().toLocaleDateString('pt-BR');
+        document.getElementById('data-atual').innerText = dataHoje;
+        document.getElementById('rep-produtor').innerText = produtor;
+        document.getElementById('rep-meta').innerText = meta;
+
+        // --- CÁLCULOS (Com lógica original + Fatores) ---
+
+        // 1. Calagem
+        let nc = 0;
+        if (vAtual < 70) {
+            nc = ((70 - vAtual) * (ctc / 10)) * (100 / prnt);
+        }
+
+        let maxCalcario = 3.0;
+        if (textura === 'arenosa') maxCalcario = 2.0;
+        if (textura === 'argilosa') maxCalcario = 4.0;
+
+        let doseCalcario = nc > 0 ? nc : 0;
+        let obsCalagem = "";
+        
+        if (doseCalcario > maxCalcario) {
+            obsCalagem = `Necessidade calculada de ${doseCalcario.toFixed(1)} t/ha. Aplicar a dose máxima de ${maxCalcario.toFixed(1)} t/ha agora e o restante no próximo ano.`;
+            doseCalcario = maxCalcario;
+        } else if (doseCalcario > 0) {
+            obsCalagem = textos.calagem; 
+        } else {
+            obsCalagem = "Não há necessidade de calagem (V% > 70).";
+        }
+
+        let htmlCalagem = "";
+        let txtIntroCalagem = "";
+        if (doseCalcario > 0) {
+            htmlCalagem += `<tr>
+                <td>Calagem</td>
+                <td><strong>${doseCalcario.toFixed(1)} t/ha</strong></td>
+                <td>${obsCalagem} Usar Calcário Dolomítico.</td>
+            </tr>`;
+            txtIntroCalagem = `O solo apresenta Saturação por Bases de ${vAtual}%, necessitando correção.`;
+        } else {
+            htmlCalagem += `<tr><td>Calagem</td><td>0 t/ha</td><td>Solo com saturação adequada.</td></tr>`;
+            txtIntroCalagem = "O solo encontra-se com níveis adequados de saturação por bases.";
+        }
+        
+        // Gessagem
+        const caSolo = parseFloat(document.getElementById('ca_solo').value) || 0;
+        if (caSolo < 20 && doseCalcario < 1) {
+             htmlCalagem += `<tr>
+                <td>Gessagem</td>
+                <td>700 kg/ha</td>
+                <td>${textos.gessagem}</td>
+            </tr>`;
+        }
+        document.getElementById('table-calagem-body').innerHTML = htmlCalagem;
+        document.getElementById('text-calagem').innerText = txtIntroCalagem;
+
+
+        // 2. Adubação Orgânica
+        document.getElementById('text-organica').innerText = textos.organica;
+
+
+        // 3. N-P-K (Tabelas 3 e 4) - APLICAÇÃO DOS FATORES
+        let doseNBase = 0;
+        let doseKBase = 0;
+        let dosePBase = 0;
+
+        if (meta <= 20) { doseNBase = 200; doseKBase = 200; }
+        else if (meta <= 30) { doseNBase = 300; doseKBase = 250; }
+        else if (meta <= 40) { doseNBase = 400; doseKBase = 300; }
+        else if (meta <= 50) { doseNBase = 500; doseKBase = 350; }
+        else { doseNBase = 600; doseKBase = 400; }
+
+        if (kSolo >= 1.6 && kSolo <= 3.0) {
+            doseKBase = doseKBase * 0.75; 
+        } else if (kSolo > 3.0) {
+            doseKBase = doseKBase * 0.50;
+        }
+
+        if (pResina <= 10) dosePBase = 200;
+        else if (pResina <= 20) dosePBase = 150;
+        else if (pResina <= 30) dosePBase = 100;
+        else dosePBase = 50;
+
+        // APLICAR FATORES DE AJUSTE
+        let doseN = doseNBase * fatores.n;
+        let doseP = dosePBase * fatores.p;
+        let doseK = doseKBase * fatores.k;
+
+        const parc = [
+            { epoca: "1ª Cobertura (Set/Out)", n: doseN*0.3, p: doseP*0.5, k: doseK*0.3, obs: textos.cob1 },
+            { epoca: "2ª Cobertura (Nov/Dez)", n: doseN*0.4, p: doseP*0.5, k: doseK*0.4, obs: textos.cob_demais },
+            { epoca: "3ª Cobertura (Jan/Fev)", n: doseN*0.3, p: 0,        k: doseK*0.3, obs: textos.cob_demais }
+        ];
+
+        let htmlAdubacao = "";
+        document.getElementById('text-mineral').innerText = `Doses calculadas considerando fatores regionais (N: x${fatores.n.toFixed(2)}, P: x${fatores.p.toFixed(2)}, K: x${fatores.k.toFixed(2)}).`;
+
+        parc.forEach(p => {
+            let ureia = (p.n / 0.45).toFixed(0);
+            let ss = p.p > 0 ? (p.p / 0.18).toFixed(0) : 0;
+            let kcl = (p.k / 0.60).toFixed(0);
+
+            let descNutri = `N: ${p.n.toFixed(0)} | P₂O₅: ${p.p.toFixed(0)} | K₂O: ${p.k.toFixed(0)}`;
+            let descComercial = `<strong>Ureia:</strong> ${ureia} kg`;
+            if (ss > 0) descComercial += `<br><strong>Super Simples:</strong> ${ss} kg`;
+            descComercial += `<br><strong>Cloreto de K:</strong> ${kcl} kg`;
+
+            htmlAdubacao += `<tr>
+                <td>${p.epoca}<br><small><em>${p.obs}</em></small></td>
+                <td>${descNutri}</td>
+                <td>${descComercial}</td>
+            </tr>`;
+        });
+
+        document.getElementById('table-adubacao-body').innerHTML = htmlAdubacao;
+
+
+        // 4. Micronutrientes
+        let htmlMicro = "";
+        let temMicro = false;
+        if (!isNaN(bSolo) && bSolo <= 0.2) {
+            htmlMicro += "<p><strong>Boro (B):</strong> Teor baixo. Aplicar <strong>1 a 2 kg/ha de B</strong>.</p>"; temMicro = true;
+        }
+        if (!isNaN(znSolo) && znSolo <= 0.5) {
+            htmlMicro += "<p><strong>Zinco (Zn):</strong> Teor baixo. Aplicar <strong>5 a 10 kg/ha de Zn</strong>.</p>"; temMicro = true;
+        }
+        if (!isNaN(cuSolo) && cuSolo <= 0.3) {
+            htmlMicro += "<p><strong>Cobre (Cu):</strong> Teor baixo. Aplicar <strong>2 a 4 kg/ha de Cu</strong>.</p>"; temMicro = true;
+        }
+        if (!temMicro) htmlMicro = "<p>Sem necessidade urgente de correção via solo.</p>";
+        document.getElementById('text-micro-solo').innerHTML = htmlMicro;
+
+        // 5. Foliar
+        document.getElementById('text-foliar').innerText = textos.foliar;
+
+        dadosRelatorio = {
+            produtor, meta, doseCalcario, doseN, doseP, doseK
+        };
+
+        document.getElementById('report-output').style.display = 'block';
+        document.getElementById('actions-div').style.display = 'flex';
+        document.getElementById('report-output').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // --- FUNÇÕES DE EXPORTAÇÃO ---
+
+    // Função de PDF mantida no código (mas sem botão na UI) conforme pedido de não remover lógica
+    function baixarPDF() {
+        const element = document.getElementById('report-output');
+        const opt = {
+            margin:       [10, 10, 10, 10], 
+            filename:     `Recomendacao_Cafe_${dadosRelatorio.produtor || 'Relatorio'}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true, logging: false },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+        };
+        html2pdf().set(opt).from(element).save();
+    }
+
+    // Função auxiliar para gerar Blob do DOCX
+    function gerarBlobDOCX() {
+        let contentHTML = `
+            <!DOCTYPE html>
+            <html lang="pt-BR">
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body { font-family: 'Arial', sans-serif; font-size: 11pt; }
+                    h2 { color: #2c5e2e; border-bottom: 2px solid #ccc; padding-bottom: 10px; }
+                    h3 { color: #4e342e; margin-top: 20px; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                    th, td { border: 1px solid #000; padding: 5px; text-align: left; }
+                    th { background-color: #f0f0f0; font-weight: bold; }
+                    .alert-box { background-color: #fff3cd; padding: 10px; margin: 10px 0; border: 1px solid #ffeeba; }
+                    .signature-block { margin-top: 50px; text-align: center; page-break-inside: avoid; }
+                </style>
+            </head>
+            <body>
+                ${document.getElementById('report-output').innerHTML}
+            </body>
+            </html>
+        `;
+        return htmlDocx.asBlob(contentHTML, {orientation: 'portrait'});
+    }
+
+    function baixarDOCX() {
+        if(!dadosRelatorio.produtor) { alert("Gere o relatório primeiro."); return; }
+        const blob = gerarBlobDOCX();
+        saveAs(blob, `Recomendacao_Cafe_${dadosRelatorio.produtor}.docx`);
+    }
+
+    // Funções de envio mantidas (mas sem botões na UI) conforme pedido de não remover lógica
+    function enviarWhatsApp() {
+        if(!dadosRelatorio.produtor) { alert("Gere o relatório primeiro."); return; }
+        baixarDOCX(); 
+        alert("✅ Arquivo DOCX baixado.\nAbra o WhatsApp Web e anexe o arquivo.");
+        window.open(`https://wa.me/`, '_blank');
+    }
+
+    function enviarEmail() {
+        if(!dadosRelatorio.produtor) { alert("Gere o relatório primeiro."); return; }
+        baixarDOCX();
+        alert("✅ Arquivo DOCX baixado.\nAnexe-o no seu cliente de e-mail.");
+        const subject = `Recomendação Técnica - ${dadosRelatorio.produtor}`;
+        const body = `Segue em anexo o arquivo DOCX com a recomendação técnica.`;
+        window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }
+</script>
+
+</body>
+</html>
