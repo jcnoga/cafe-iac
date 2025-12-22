@@ -98,6 +98,12 @@ function mostrarRecuperar() {
 }
 
 function fazerLogin() {
+    // CORREÇÃO: Verificação de segurança
+    if(!auth) { 
+        alert("Erro: Sistema de autenticação não inicializado. Verifique sua conexão com a internet."); 
+        return; 
+    }
+
     const email = document.getElementById('login-email').value;
     const pass = document.getElementById('login-password').value;
     const msg = document.getElementById('msg-login');

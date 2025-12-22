@@ -36,10 +36,15 @@ body {
     box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: center;
 }
 
-.auth-box h2 { color: var(--primary-color); margin-top: 0; }
+/* CORREÇÃO: Cor explícita para garantir visibilidade */
+.auth-box h2 { color: #2c5e2e; margin-top: 0; } 
+
 .auth-box input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;}
 .auth-box button { width: 100%; padding: 10px; margin-top: 10px; cursor: pointer; border: none; border-radius: 5px; font-weight: bold; }
-.btn-login { background: var(--primary-color); color: white; }
+
+/* CORREÇÃO: Background explícito para evitar botão invisível */
+.btn-login { background-color: #2c5e2e; color: white; }
+
 .btn-link { background: none; color: #1976d2; margin-top: 10px; font-size: 0.9rem; text-decoration: underline; }
 
 .error-msg { color: red; font-size: 0.85rem; margin-top: 5px; display: none; }
