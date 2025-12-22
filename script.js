@@ -1,3 +1,5 @@
+--- START OF FILE script.js ---
+
 // ======================================================
 // CONFIGURAÇÃO DO FIREBASE (SUBSTITUA PELOS SEUS DADOS)
 // ======================================================
@@ -193,17 +195,25 @@ function verificarLicenca() {
 }
 
 function gerarCodigoAleatorio() {
+    // Gera o código na lógica original
     generatedRandomCode = Math.floor(Math.random() * (1000 - 100 + 1)) + 100;
-    document.getElementById('codigo-aleatorio').innerText = generatedRandomCode;
-    // Mostra botão de zap
+    
+    // ATUALIZAÇÃO: Mascarar o código na interface (não exibe o número)
+    document.getElementById('codigo-aleatorio').innerText = "****"; 
+    
+    // Garante que o botão de zap esteja visível
     document.getElementById('btn-whatsapp').style.display = 'block';
 }
 
 function enviarWhatsApp() {
-    if(generatedRandomCode === 0) return alert("Gere o código primeiro.");
+    if(generatedRandomCode === 0) gerarCodigoAleatorio();
+    
     const dias = document.getElementById('select-dias-solicita').value;
     const numero = "5534997824990";
-    const msg = `Olá! Solicito liberação do App.\nCódigo: ${generatedRandomCode}\nDias: ${dias}`;
+    
+    // ATUALIZAÇÃO: Formato obrigatório com código, dias e palavra-chave 'café'
+    const msg = `Olá! Solicito liberação do App (café).\nCódigo: ${generatedRandomCode}\nDias: ${dias}`;
+    
     const url = `https://wa.me/${numero}?text=${encodeURIComponent(msg)}`;
     window.open(url, '_blank');
 }
@@ -271,7 +281,13 @@ function mudarAbaConfig(aba) {
     document.querySelectorAll('.tab-bar .tab-btn').forEach(el => el.classList.remove('active'));
     document.getElementById('tab-' + aba).classList.add('active');
     const btns = document.querySelectorAll('.tab-bar .tab-btn');
-    if(aba==='licenca') btns[0].classList.add('active');
+    
+    if(aba==='licenca') {
+        btns[0].classList.add('active');
+        // ATUALIZAÇÃO: Gerar código automaticamente ao abrir a aba
+        gerarCodigoAleatorio();
+    }
+    
     if(aba==='regioes') btns[1].classList.add('active');
     if(aba==='admin') btns[2].classList.add('active');
 }
