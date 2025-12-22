@@ -1,0 +1,154 @@
+:root {
+    --primary-color: #2c5e2e;
+    --secondary-color: #4e342e;
+    --accent-color: #8d6e63;
+    --light-bg: #f1f8e9;
+    --text-color: #333;
+    --danger-color: #d32f2f;
+    --edit-color: #1976d2;
+    --bg-body: #e8ece6;
+    --whatsapp-color: #25D366;
+    --pdf-color: #b71c1c;
+    --docx-color: #1565c0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-body);
+    color: var(--text-color);
+    margin: 0;
+    padding: 20px;
+    line-height: 1.6;
+}
+
+/* TELA DE LOGIN / BLOQUEIO */
+#auth-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(44, 94, 46, 0.95);
+    z-index: 9999;
+    display: flex; justify-content: center; align-items: center;
+}
+
+.auth-box {
+    background: white; padding: 30px; border-radius: 10px; width: 350px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: center;
+}
+
+.auth-box h2 { color: var(--primary-color); margin-top: 0; }
+.auth-box input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;}
+.auth-box button { width: 100%; padding: 10px; margin-top: 10px; cursor: pointer; border: none; border-radius: 5px; font-weight: bold; }
+.btn-login { background: var(--primary-color); color: white; }
+.btn-link { background: none; color: #1976d2; margin-top: 10px; font-size: 0.9rem; text-decoration: underline; }
+
+.error-msg { color: red; font-size: 0.85rem; margin-top: 5px; display: none; }
+
+/* AREA DO APLICATIVO (Oculta até login) */
+#app-content { display: none; }
+
+/* ALERTAS DO SISTEMA */
+#system-alert-bar {
+    display: none;
+    background-color: var(--danger-color);
+    color: white;
+    padding: 10px;
+    text-align: center;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+/* STATUS BAR (Usuário Logado) */
+.user-bar {
+    background: #fff; padding: 10px 20px; border-radius: 8px; margin-bottom: 20px;
+    display: flex; justify-content: space-between; align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.user-info span { font-weight: bold; color: var(--primary-color); }
+.btn-logout { background: var(--danger-color); color: white; border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;}
+
+/* CONTAINER PRINCIPAL */
+.container {
+    max-width: 900px; margin: 0 auto; background-color: white;
+    padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* HEADER */
+header { border-bottom: 3px solid var(--primary-color); padding-bottom: 20px; margin-bottom: 20px; }
+.header-toolbar { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 15px; }
+.header-title { text-align: center; }
+h1 { color: var(--primary-color); margin: 0 0 5px 0; }
+h2 { color: var(--secondary-color); font-size: 1.2rem; margin-top: 20px; border-left: 5px solid var(--primary-color); padding-left: 10px; }
+
+/* BOTÕES DE FERRAMENTA */
+.toolbar-btn {
+    padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer;
+    font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: all 0.2s;
+}
+.btn-config { background-color: var(--secondary-color); color: white; }
+.btn-test { background-color: #ff9800; color: white; }
+.btn-whatsapp { background-color: var(--whatsapp-color); color: white; }
+
+/* FORMULÁRIO */
+.form-section { background-color: var(--light-bg); padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+.input-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px; }
+label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 0.9rem; }
+input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+
+/* AÇÕES */
+.actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 30px; }
+button.action-btn {
+    padding: 15px 30px; border: none; border-radius: 5px; cursor: pointer;
+    font-weight: bold; color: white; transition: 0.3s;
+    display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 1.0rem;
+}
+.btn-calc { background-color: var(--primary-color); font-size: 1.1rem; width: 100%; justify-content: center; margin-bottom: 20px; flex-direction: row;}
+.btn-docx { background-color: var(--docx-color); flex: 1; min-width: 250px; }
+.btn-pdf { background-color: var(--pdf-color); flex: 1; min-width: 250px; }
+
+/* TABELAS */
+.region-list-container { margin-top: 20px; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
+.region-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.region-table th { background-color: #f0f0f0; padding: 10px; text-align: left; border-bottom: 2px solid #ccc; font-weight: bold; color: #444; }
+.region-table td { padding: 10px; border-bottom: 1px solid #eee; vertical-align: middle; }
+.tag-factor { display: inline-block; background: #e0e0e0; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; margin-right: 4px; color: #333; }
+
+.btn-icon { border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; color: white; margin-left: 5px; }
+.btn-edit { background-color: var(--edit-color); }
+.btn-delete { background-color: var(--danger-color); }
+
+/* MODAL */
+.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
+.modal-content { background-color: #fefefe; margin: 2% auto; padding: 25px; border: 1px solid #888; width: 85%; max-width: 900px; border-radius: 8px; max-height: 90vh; overflow-y: auto; }
+.close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+.close:hover { color: black; }
+.modal-header { border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 20px; }
+
+/* ABAS DO MODAL */
+.tab-bar { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #ccc; }
+.tab-btn { background: none; border: none; padding: 10px; cursor: pointer; border-bottom: 3px solid transparent; font-size: 1rem; }
+.tab-btn.active { border-bottom-color: var(--primary-color); font-weight: bold; color: var(--primary-color); }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* PAINEL LICENÇA */
+.license-box { background: #fff8e1; border: 1px solid #ffe082; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px; }
+.license-status { font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; color: #f57c00; }
+.admin-box { background: #e0f2f1; border: 1px solid #80cbc4; padding: 15px; border-radius: 8px; margin-top: 20px; display: none; }
+
+/* IMPRESSÃO */
+@media print {
+    body { background-color: white; }
+    .container { box-shadow: none; width: 100%; max-width: 100%; }
+    .no-print { display: none !important; }
+    #report-output { display: block !important; border: none; padding: 0; }
+}
+
+#report-output { display: none; border: 1px solid #ddd; padding: 40px; margin-top: 30px; background: white; }
+.report-header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #ccc; padding-bottom: 10px; }
+.report-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
+.report-table th, .report-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+.report-table th { background-color: var(--primary-color); color: white; }
+.recommendation-text { font-size: 1rem; text-align: justify; margin-bottom: 15px; white-space: pre-wrap; }
+
+footer { margin-top: 30px; padding-top: 10px; border-top: 1px solid #ccc; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; }
+a.inst-link { color: var(--primary-color); text-decoration: none; font-weight: bold; }
