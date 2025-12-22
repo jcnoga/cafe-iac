@@ -1,3 +1,5 @@
+--- START OF FILE index.html ---
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -294,7 +296,7 @@
                 <hr style="margin: 20px 0;">
                 
                 <h3>Solicitar Créditos / Renovação</h3>
-                <p>1. Selecione os dias, gere o código e envie para o administrador.</p>
+                <p>1. Selecione os dias e solicite a liberação via WhatsApp.</p>
                 <div style="margin: 15px 0;">
                     <div style="margin-bottom: 10px;">
                          <label style="display:inline-block; width:auto;">Dias Solicitados:</label>
@@ -305,11 +307,15 @@
                              <option value="365">1 Ano</option>
                          </select>
                     </div>
-                    <button class="action-btn btn-calc" style="margin:0 auto; width:auto;" onclick="gerarCodigoAleatorio()">Gerar Código</button>
-                    <p id="codigo-aleatorio" style="font-size: 2rem; font-weight: bold; color: var(--primary-color); margin: 10px 0;">---</p>
                     
-                    <button id="btn-whatsapp" class="toolbar-btn btn-whatsapp" style="margin: 0 auto; display:none;" onclick="enviarWhatsApp()">
-                        📲 Enviar via WhatsApp
+                    <!-- Botão Gerar Código REMOVIDO -->
+                    
+                    <!-- Código agora é mascarado -->
+                    <p id="codigo-aleatorio" style="font-size: 2rem; font-weight: bold; color: var(--primary-color); margin: 10px 0;">****</p>
+                    
+                    <!-- Botão WhatsApp visível por padrão (gerado automaticamente) -->
+                    <button id="btn-whatsapp" class="toolbar-btn btn-whatsapp" style="margin: 0 auto; display:block;" onclick="enviarWhatsApp()">
+                        📲 Solicitar via WhatsApp
                     </button>
                 </div>
 
