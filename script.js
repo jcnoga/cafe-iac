@@ -195,23 +195,24 @@ function verificarLicenca() {
 }
 
 function gerarCodigoAleatorio() {
-    // Gera o código na lógica original
+    // Lógica de geração inalterada
     generatedRandomCode = Math.floor(Math.random() * (1000 - 100 + 1)) + 100;
     
-    // ATUALIZAÇÃO: Mascarar o código na interface (não exibe o número)
-    document.getElementById('codigo-aleatorio').innerText = "****"; 
+    // ATUALIZAÇÃO: Código mascarado na interface
+    document.getElementById('codigo-aleatorio').innerText = "****";
     
-    // Garante que o botão de zap esteja visível
+    // Mostra botão de zap automaticamente
     document.getElementById('btn-whatsapp').style.display = 'block';
 }
 
 function enviarWhatsApp() {
-    if(generatedRandomCode === 0) gerarCodigoAleatorio();
+    // ATUALIZAÇÃO: Geração OBRIGATÓRIA no momento do clique (código recém-gerado)
+    gerarCodigoAleatorio();
     
     const dias = document.getElementById('select-dias-solicita').value;
     const numero = "5534997824990";
     
-    // ATUALIZAÇÃO: Formato obrigatório com código, dias e palavra-chave 'café'
+    // Mensagem inclui código, dias e a palavra-chave "café"
     const msg = `Olá! Solicito liberação do App (café).\nCódigo: ${generatedRandomCode}\nDias: ${dias}`;
     
     const url = `https://wa.me/${numero}?text=${encodeURIComponent(msg)}`;
@@ -284,7 +285,7 @@ function mudarAbaConfig(aba) {
     
     if(aba==='licenca') {
         btns[0].classList.add('active');
-        // ATUALIZAÇÃO: Gerar código automaticamente ao abrir a aba
+        // Gera código inicial ao abrir, mas o clique no botão irá gerar um novo
         gerarCodigoAleatorio();
     }
     
