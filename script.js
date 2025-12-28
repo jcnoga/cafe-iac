@@ -1,5 +1,3 @@
-// --- START OF FILE script.js ---
-
 // ======================================================
 // CONFIGURAÇÃO DO FIREBASE (SUBSTITUA PELOS SEUS DADOS)
 // ======================================================
@@ -108,12 +106,19 @@ function fazerLogin() {
 }
 
 function criarConta() {
+    // CORREÇÃO: Captura do Nome do Usuário
+    const nome = document.getElementById('reg-nome').value;
     const empresa = document.getElementById('reg-empresa').value;
     const email = document.getElementById('reg-email').value;
     const pass = document.getElementById('reg-password').value;
     const msg = document.getElementById('msg-cadastro');
 
-    if(!empresa) { msg.innerText = "Nome da Empresa é obrigatório."; msg.style.display = 'block'; return; }
+    // CORREÇÃO: Validação do Nome e Empresa
+    if(!nome || !empresa) { 
+        msg.innerText = "Nome e Nome da Empresa são obrigatórios."; 
+        msg.style.display = 'block'; 
+        return; 
+    }
 
     auth.createUserWithEmailAndPassword(email, pass)
         .then((cred) => {
@@ -121,6 +126,7 @@ function criarConta() {
             const expirationDate = Date.now() + thirtyDaysInMs;
 
             return db.collection('users').doc(cred.user.uid).set({
+                nome: nome, // CORREÇÃO: Salvando nome no banco
                 empresa: empresa,
                 email: email,
                 licenseExpiration: expirationDate
@@ -145,15 +151,33 @@ function fazerLogout() {
 }
 
 async function carregarDadosUsuario(user) {
-    const doc = await db.collection('users').doc(user.uid).get();
-    if(doc.exists) {
-        const data = doc.data();
-        document.getElementById('user-display-email').innerText = data.email;
-        document.getElementById('user-display-empresa').innerText = data.empresa;
-        licenseExpiration = data.licenseExpiration || 0;
-        
-        verificarLicenca();
+    try {
+        const doc = await db.collection('users').doc(user.uid).get();
+        if(doc.exists) {
+            const data = doc.data();
+            // CORREÇÃO: Busca o nome do banco, ou usa o email se for usuário antigo
+            document.getElementById('user-display-nome').innerText = data.nome || user.email;
+            document.getElementById('user-display-empresa').innerText = data.empresa;
+            licenseExpiration = data.licenseExpiration || 0;
+            
+            verificarLicenca();
+        } else {
+            // CORREÇÃO PARA ERRO DE LOGIN: 
+            // Se o documento não existir no banco (inconsistência), libera o acesso mas sem licença.
+            // Isso evita que o app trave na tela de login.
+            console.warn("Perfil de usuário não encontrado no Firestore. Iniciando sessão padrão.");
+            document.getElementById('user-display-nome').innerText = user.email;
+            document.getElementById('user-display-empresa').innerText = "Não informado";
+            licenseExpiration = 0; // Assume expirado por segurança
+            verificarLicenca();
+        }
+    } catch (e) {
+        console.error("Erro ao carregar perfil:", e);
+        // Em caso de erro de rede, tenta mostrar a interface para não bloquear totalmente
+        alert("Erro ao carregar perfil de usuário. Verifique sua conexão.");
     }
+    
+    // Liberação Admin
     if(user.email === 'jcnvap@gmail.com') {
         document.getElementById('btn-tab-admin').style.display = 'inline-block';
     }

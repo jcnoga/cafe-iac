@@ -1,5 +1,3 @@
---- START OF FILE index.html ---
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -50,6 +48,8 @@
     <!-- Formulário de Cadastro -->
     <div id="form-cadastro" class="auth-box" style="display:none;">
         <h2>Nova Conta</h2>
+        <!-- CORREÇÃO: Campo Nome Adicionado -->
+        <input type="text" id="reg-nome" placeholder="Nome Completo (Obrigatório)">
         <input type="text" id="reg-empresa" placeholder="Nome da Empresa (Obrigatório)">
         <input type="email" id="reg-email" placeholder="E-mail">
         <input type="password" id="reg-password" placeholder="Senha (min 6 caracteres)">
@@ -80,7 +80,8 @@
     <!-- Barra do Usuário Logado -->
     <div class="user-bar no-print">
         <div class="user-info">
-            Usuário: <span id="user-display-email">...</span> | 
+            <!-- CORREÇÃO: Exibição do Nome -->
+            Olá, <span id="user-display-nome">Usuário</span> | 
             Empresa: <span id="user-display-empresa">...</span>
         </div>
         <div>
