@@ -1,4 +1,4 @@
---- START OF FILE script.js ---
+// --- START OF FILE script.js ---
 
 // ======================================================
 // CONFIGURAÇÃO DO FIREBASE (SUBSTITUA PELOS SEUS DADOS)
@@ -98,12 +98,6 @@ function mostrarRecuperar() {
 }
 
 function fazerLogin() {
-    // CORREÇÃO: Verificação de segurança
-    if(!auth) { 
-        alert("Erro: Sistema de autenticação não inicializado. Verifique sua conexão com a internet."); 
-        return; 
-    }
-
     const email = document.getElementById('login-email').value;
     const pass = document.getElementById('login-password').value;
     const msg = document.getElementById('msg-login');
@@ -200,31 +194,30 @@ function verificarLicenca() {
     }
 }
 
+// Geração de Código Automática e Mascarada
 function gerarCodigoAleatorio() {
-    // Lógica de geração inalterada
     generatedRandomCode = Math.floor(Math.random() * (1000 - 100 + 1)) + 100;
-    
-    // ATUALIZAÇÃO: Código mascarado na interface
-    document.getElementById('codigo-aleatorio').innerText = "****";
-    
-    // Mostra botão de zap automaticamente
+    // Exibe mascarado conforme solicitado
+    document.getElementById('codigo-aleatorio').innerText = "******"; 
+    // Garante que o botão de WhatsApp esteja visível
     document.getElementById('btn-whatsapp').style.display = 'block';
 }
 
+// Envio via WhatsApp com formato específico
 function enviarWhatsApp() {
-    // ATUALIZAÇÃO: Geração OBRIGATÓRIA no momento do clique (código recém-gerado)
-    gerarCodigoAleatorio();
+    if(generatedRandomCode === 0) return alert("Erro no código. Tente reabrir a configuração.");
     
     const dias = document.getElementById('select-dias-solicita').value;
     const numero = "5534997824990";
     
-    // Mensagem inclui código, dias e a palavra-chave "café"
-    const msg = `Olá! Solicito liberação do App (café).\nCódigo: ${generatedRandomCode}\nDias: ${dias}`;
+    // Formato Obrigatório: Código + Dias + Palavra-chave "café"
+    const msg = `Olá! Solicito liberação.\nCódigo: ${generatedRandomCode}\nDias: ${dias}\ncafé`;
     
     const url = `https://wa.me/${numero}?text=${encodeURIComponent(msg)}`;
     window.open(url, '_blank');
 }
 
+// Validação com Fórmula Específica
 function validarContraSenha() {
     // Pega valores dos dois inputs
     const contraSenhaInput = parseInt(document.getElementById('input-contra-senha-val').value);
@@ -235,11 +228,9 @@ function validarContraSenha() {
         return;
     }
 
-    // Cálculo Matemático Base
-    const calcBase = (generatedRandomCode + CONST_ADICAO) * CONST_MULTIPLICACAO + CONST_BASE;
-    
-    // A contra-senha digitada deve ser (Base + Dias)
-    const valorEsperado = calcBase + diasInput;
+    // Fórmula Solicitada: (código_gerado + 13) × 9 + 1954 + número_de_dias_solicitados
+    // Nota: A variável global 'generatedRandomCode' contém o valor real, enquanto a tela mostra mascarado.
+    const valorEsperado = ((generatedRandomCode + 13) * 9) + 1954 + diasInput;
 
     if(contraSenhaInput === valorEsperado) {
         adicionarDiasLicenca(diasInput);
@@ -277,7 +268,10 @@ function adminSetarUmDia() {
 function abrirModalConfig(abaInicial = 'licenca') {
     document.getElementById('modal-settings').style.display = "block";
     mudarAbaConfig(abaInicial);
-    renderizarListaRegioes(); 
+    renderizarListaRegioes();
+    
+    // Geração Automática ao abrir o modal/configurações
+    gerarCodigoAleatorio();
 }
 function fecharModalConfig() {
     document.getElementById('modal-settings').style.display = "none";
@@ -288,13 +282,7 @@ function mudarAbaConfig(aba) {
     document.querySelectorAll('.tab-bar .tab-btn').forEach(el => el.classList.remove('active'));
     document.getElementById('tab-' + aba).classList.add('active');
     const btns = document.querySelectorAll('.tab-bar .tab-btn');
-    
-    if(aba==='licenca') {
-        btns[0].classList.add('active');
-        // Gera código inicial ao abrir, mas o clique no botão irá gerar um novo
-        gerarCodigoAleatorio();
-    }
-    
+    if(aba==='licenca') btns[0].classList.add('active');
     if(aba==='regioes') btns[1].classList.add('active');
     if(aba==='admin') btns[2].classList.add('active');
 }

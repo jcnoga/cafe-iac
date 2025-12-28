@@ -24,7 +24,6 @@
     <!-- 2. DOCX Generation: html-docx-js -->
     <script src="https://unpkg.com/html-docx-js@0.3.1/dist/html-docx.js"></script>
     
-	
     <!-- 3. File Saving: FileSaver.js (Essencial para o saveAs funcionar) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
@@ -297,7 +296,7 @@
                 <hr style="margin: 20px 0;">
                 
                 <h3>Solicitar Créditos / Renovação</h3>
-                <p>1. Selecione os dias e solicite a liberação via WhatsApp.</p>
+                <p>1. Selecione os dias, o código será gerado automaticamente para envio.</p>
                 <div style="margin: 15px 0;">
                     <div style="margin-bottom: 10px;">
                          <label style="display:inline-block; width:auto;">Dias Solicitados:</label>
@@ -309,14 +308,11 @@
                          </select>
                     </div>
                     
-                    <!-- Botão Gerar Código REMOVIDO -->
+                    <!-- Botão de gerar removido e código mascarado -->
+                    <p id="codigo-aleatorio" style="font-size: 2rem; font-weight: bold; color: var(--primary-color); margin: 10px 0; letter-spacing: 3px;">******</p>
                     
-                    <!-- Código agora é mascarado -->
-                    <p id="codigo-aleatorio" style="font-size: 2rem; font-weight: bold; color: var(--primary-color); margin: 10px 0;">****</p>
-                    
-                    <!-- Botão WhatsApp visível por padrão (gerado automaticamente) -->
-                    <button id="btn-whatsapp" class="toolbar-btn btn-whatsapp" style="margin: 0 auto; display:block;" onclick="enviarWhatsApp()">
-                        📲 Solicitar via WhatsApp
+                    <button id="btn-whatsapp" class="toolbar-btn btn-whatsapp" style="margin: 0 auto; display:none;" onclick="enviarWhatsApp()">
+                        📲 Enviar via WhatsApp
                     </button>
                 </div>
 
