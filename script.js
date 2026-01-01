@@ -150,32 +150,44 @@ function fazerLogout() {
     auth.signOut().then(() => location.reload());
 }
 
-async function carregarDadosUsuario(user) {
-    try {
-        const doc = await db.collection('users').doc(user.uid).get();
-        if(doc.exists) {
-            const data = doc.data();
-            // CORREÇÃO: Busca o nome do banco, ou usa o email se for usuário antigo
-            document.getElementById('user-display-nome').innerText = data.nome || user.email;
-            document.getElementById('user-display-empresa').innerText = data.empresa;
-            licenseExpiration = data.licenseExpiration || 0;
-            
-            verificarLicenca();
-        } else {
-            // CORREÇÃO PARA ERRO DE LOGIN: 
-            // Se o documento não existir no banco (inconsistência), libera o acesso mas sem licença.
-            // Isso evita que o app trave na tela de login.
-            console.warn("Perfil de usuário não encontrado no Firestore. Iniciando sessão padrão.");
-            document.getElementById('user-display-nome').innerText = user.email;
-            document.getElementById('user-display-empresa').innerText = "Não informado";
-            licenseExpiration = 0; // Assume expirado por segurança
-            verificarLicenca();
+// =================================================================
+// FUNÇÃO MODIFICADA: Implementação de Listener em Tempo Real (onSnapshot)
+// =================================================================
+function carregarDadosUsuario(user) {
+    // IMPLEMENTAÇÃO: Substituímos o .get() pelo .onSnapshot() para monitorar
+    // alterações feitas pelo Administrador no Firebase Console em tempo real.
+    // Isso garante que a atualização dos dias de crédito seja imediata.
+    
+    db.collection('users').doc(user.uid).onSnapshot((doc) => {
+        try {
+            if(doc.exists) {
+                const data = doc.data();
+                
+                // Atualização dos dados de exibição na interface
+                document.getElementById('user-display-nome').innerText = data.nome || user.email;
+                document.getElementById('user-display-empresa').innerText = data.empresa;
+                
+                // Atualização da variável de controle da licença
+                // Se o admin alterar este valor no console, o app recebe o novo valor instantaneamente
+                licenseExpiration = data.licenseExpiration || 0;
+                
+                // Re-executa a verificação de licença com os novos dados
+                verificarLicenca();
+            } else {
+                // CORREÇÃO PARA ERRO DE LOGIN (Lógica original preservada): 
+                console.warn("Perfil de usuário não encontrado no Firestore. Iniciando sessão padrão.");
+                document.getElementById('user-display-nome').innerText = user.email;
+                document.getElementById('user-display-empresa').innerText = "Não informado";
+                licenseExpiration = 0; // Assume expirado por segurança
+                verificarLicenca();
+            }
+        } catch (e) {
+            console.error("Erro ao processar atualização do perfil:", e);
         }
-    } catch (e) {
-        console.error("Erro ao carregar perfil:", e);
-        // Em caso de erro de rede, tenta mostrar a interface para não bloquear totalmente
-        alert("Erro ao carregar perfil de usuário. Verifique sua conexão.");
-    }
+    }, (error) => {
+        console.error("Erro no listener de dados do usuário:", error);
+        alert("Erro de conexão. Verifique sua internet.");
+    });
     
     // Liberação Admin
     if(user.email === 'jcnvap@gmail.com') {
@@ -272,20 +284,21 @@ function adicionarDiasLicenca(dias) {
         licenseExpiration: newExpiration
     }).then(() => {
         alert(`Sucesso! Adicionados ${dias} dias.`);
-        location.reload();
+        // Não é necessário reload devido ao listener, mas mantém UX de feedback
+        // O listener cuidará da atualização da UI.
     });
 }
 
 function adminZerarDias() {
     if(!confirm("Tem certeza que deseja ZERAR a licença deste usuário?")) return;
-    db.collection('users').doc(currentUser.uid).update({ licenseExpiration: 0 })
-      .then(() => location.reload());
+    db.collection('users').doc(currentUser.uid).update({ licenseExpiration: 0 });
+    // Reload removido pois onSnapshot atualiza automaticamente
 }
 
 function adminSetarUmDia() {
     const oneDay = Date.now() + (24 * 60 * 60 * 1000);
     db.collection('users').doc(currentUser.uid).update({ licenseExpiration: oneDay })
-      .then(() => { alert("Configurado para 1 dia."); location.reload(); });
+      .then(() => { alert("Configurado para 1 dia."); });
 }
 
 // --- MODAIS ---
